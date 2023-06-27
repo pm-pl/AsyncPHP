@@ -32,17 +32,19 @@ function fetchData($url) : mixed {
 
 function test() : void {
 
-    $url1 = "https://example.com";
-    $url2 = "https://google.com";
+    $url = [
+        "https://www.google.com",
+        "https://www.bing.com",
+        "https://www.yahoo.com"
+    ];
 
-    $fiber = new Fiber(function() use ($url1, $url2) {
-        $result1 = Async::await(fn() => fetchData($url1));
-        var_dump($result1);
-        $result2 = Async::await(fn() => fetchData($url2));
-        var_dump($result2);
-    });
-
-    $fiber->start();
+    foreach ($url as $key => $value) {
+        $fiber = new Fiber(function() use ($value) {
+            $response = Async::await(fn() => fetchData($value));
+            echo $response . PHP_EOL;
+        });
+        $fiber->start();
+    }
 
     Async::run();
 }
