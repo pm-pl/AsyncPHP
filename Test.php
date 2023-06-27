@@ -30,21 +30,16 @@ function test() : void {
     $url1 = "https://example.com";
     $url2 = "https://google.com";
 
-    $async = new Async();
+    $fiber = new Fiber(function() use ($url1, $url2) {
+        $result1 = Async::await(fn() => fetchData($url1));
+        var_dump($result1);
+        $result2 = Async::await(fn() => fetchData($url2));
+        var_dump($result2);
+    });
 
-    $result1 = $async->await(new \Fiber(function() use ($url2) {
-        $response = fetchData($url2);
-        return $response;
-    }));
-    $result2 = $async->await(new \Fiber(function() use ($url1) {
-        $response = fetchData($url1);
-        return $response;
-    }));
+    $fiber->start();
 
-    var_dump($result1);
-    var_dump($result2);
-
-    $async->run();
+    Async::run();
 }
 
 test();

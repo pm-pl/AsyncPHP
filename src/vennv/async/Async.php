@@ -7,7 +7,7 @@ final class Async {
     private static array $awaiting = [];
     private static array $listTerminated = [];
 
-    private function addWait(Await $await) : bool {
+    private static function addWait(Await $await) : bool {
         try {
             self::$awaiting[] = $await;
             return true;
@@ -16,7 +16,7 @@ final class Async {
         }
     }
 
-    private function dropAwaits() : bool {
+    private static function dropAwaits() : bool {
         try {
             foreach (self::$listTerminated as $index) {
                 unset(self::$awaiting[$index]);
@@ -27,7 +27,7 @@ final class Async {
         }
     }
 
-    private function addTerminated(int $index) : bool {
+    private static function addTerminated(int $index) : bool {
         try {
             self::$listTerminated[] = $index;
             return true;
@@ -36,26 +36,28 @@ final class Async {
         }
     }
 
-    private function processFiber(?\Fiber $fiber, int $index) : bool {
+    private static function processFiber(?\Fiber $fiber, int $index) : bool {
         if (!is_null($fiber)) {
             if ($fiber->isSuspended() && !$fiber->isTerminated()) {
                 $fiber->resume();
             } elseif ($fiber->isTerminated()) {
-                $this->addTerminated($index);
+                self::addTerminated($index);
             }
             return true;
         }
         return false;
     }
 
-    public function await(\Fiber $fiber) : mixed {
+    public static function await(callable $callable) : mixed {
+
+        $fiber = new \Fiber($callable);
 
         $await = new Await(
             \Fiber::getCurrent(),
             $fiber
         );
 
-        $this->addWait($await);
+        self::addWait($await);
 
         $fiber->start();
 
@@ -73,7 +75,7 @@ final class Async {
         return $fiber->getReturn();
     }
 
-    public function run() : void {
+    public static function run() : void {
 
         while (count(self::$awaiting) > 0) {
 
@@ -82,13 +84,13 @@ final class Async {
                 $parent = $data->getCurrent();
                 $fiber = $data->getFiber();
 
-                if (!$this->processFiber($parent, $index)) {
-                    $this->processFiber($fiber, $index);
+                if (!self::processFiber($parent, $index)) {
+                    self::processFiber($fiber, $index);
                 }
 
             }
 
-            $this->dropAwaits();
+            self::dropAwaits();
 
             self::$awaiting = array_values(self::$awaiting);
         }
