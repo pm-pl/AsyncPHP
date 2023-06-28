@@ -4,8 +4,30 @@ namespace vennv\async;
 
 final class Async {
 
+    private static mixed $value = null;
+    private static string $error = "";
+    private static bool $hasError = false;
     private static array $awaiting = [];
     private static array $listTerminated = [];
+
+    public static function create(callable $callable) : Async {
+
+        try {
+
+            $fiber = new \Fiber($callable);
+            $fiber->start();
+
+            self::$value = $fiber->getReturn();
+
+        } catch (\Throwable $e) {
+            self::$hasError = true;
+            self::$error = $e->getMessage();
+        }
+
+        self::run();
+
+        return new self();
+    }
 
     private static function addWait(Await $await) : bool {
         try {
@@ -75,7 +97,7 @@ final class Async {
         return $fiber->getReturn();
     }
 
-    public static function run() : void {
+    private static function run() : void {
 
         while (count(self::$awaiting) > 0) {
 
@@ -95,6 +117,61 @@ final class Async {
             self::$awaiting = array_values(self::$awaiting);
         }
 
+    }
+
+    public static function awaitAll(array $await) : array {
+
+        $result = [];
+
+        foreach ($await as $value) {
+            $result[] = self::await($value);
+        }
+
+        return $result;
+    }
+
+    public static function awaitAny(array $await) : mixed {
+
+        $result = null;
+
+        foreach ($await as $value) {
+            $result = self::await($value);
+            if (!is_null($result)) {
+                break;
+            }
+        }
+
+        return $result;
+    }
+
+    public static function hasError() : bool {
+        return self::$hasError;
+    }
+
+    public static function getError() : string {
+        return self::$error;
+    }
+
+    public static function getValue() : mixed {
+        return self::$value;
+    }
+
+    public function fThen(array $callable) : Async {
+
+        global $error;
+        $error = self::$hasError;
+
+        if ($error) {
+            if (isset($callable["error"])) {
+                $callable["error"](self::$error);
+            }
+        } else {
+            if (isset($callable["success"])) {
+                $callable["success"](self::$value);
+            }
+        }
+
+        return $this;
     }
 
 }

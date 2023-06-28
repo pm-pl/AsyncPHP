@@ -27,21 +27,27 @@ function fetchData($url) : mixed {
 
 function test() : void {
 
-    $url = [
-        "https://www.google.com",
-        "https://www.bing.com",
-        "https://www.yahoo.com"
-    ];
+    Async::create(function() {
 
-    foreach ($url as $key => $value) {
-        $fiber = new Fiber(function() use ($value) {
+        $url = [
+            "https://www.google.com",
+            "https://www.youtube.com"
+        ];
+        
+        foreach ($url as $value) {
+            //throw new \Exception("Error");
             $response = Async::await(fn() => fetchData($value));
             echo $response . PHP_EOL;
-        });
-        $fiber->start();
-    }
-
-    Async::run();
+        }
+        
+    })->fThen([
+        "success" => function($value) {
+            echo $value . PHP_EOL;
+        },
+        "error" => function($error) {
+            echo $error . PHP_EOL;
+        }
+    ]);
 }
 
 test();
