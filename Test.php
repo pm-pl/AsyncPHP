@@ -44,12 +44,12 @@ function test() : Async {
 }
 
 test()->fThen([
-    "success" => function($value) {
+    Async::SUCCESS => function($value) {
         array_map(function ($v) {
             echo $v . PHP_EOL;
         }, $value);
     },
-    "error" => function($error) {
+    Async::ERROR => function($error) {
         echo $error . PHP_EOL;
     }
 ]);

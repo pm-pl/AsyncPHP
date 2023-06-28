@@ -10,6 +10,9 @@ final class Async {
     private static array $awaiting = [];
     private static array $listTerminated = [];
 
+    public const SUCCESS = "success";
+    public const ERROR = "error";
+
     public static function create(callable $callable) : Async {
 
         try {
@@ -162,12 +165,12 @@ final class Async {
         $error = self::$hasError;
 
         if ($error) {
-            if (isset($callable["error"])) {
-                $callable["error"](self::$error);
+            if (isset($callable[self::ERROR])) {
+                $callable[self::ERROR](self::$error);
             }
         } else {
-            if (isset($callable["success"])) {
-                $callable["success"](self::$value);
+            if (isset($callable[self::SUCCESS])) {
+                $callable[self::SUCCESS](self::$value);
             }
         }
 
