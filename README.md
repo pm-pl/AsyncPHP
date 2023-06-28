@@ -56,3 +56,33 @@ function test() : void {
 }
 
 test();```
+
+- Example 2: ```php
+function test() : Async { 
+    return Async::create(function() {
+
+        $url = [
+            "https://www.google.com",
+            "https://www.youtube.com"
+        ];
+        
+        foreach ($url as $value) {
+            //throw new \Exception("Error");
+            //$response = Async::await(fn() => fetchData($value));
+            //echo $response . PHP_EOL;
+        }
+
+        return "Done";
+
+    });
+}
+
+test()->fThen([
+    "success" => function($value) {
+        echo $value . PHP_EOL;
+    },
+    "error" => function($error) {
+        echo $error . PHP_EOL;
+    }
+]);
+```
