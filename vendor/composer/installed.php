@@ -1,6 +1,6 @@
 <?php return array(
     'root' => array(
-        'name' => 'nam/async-fiber',
+        'name' => 'vennv/async-fiber',
         'pretty_version' => '1.0.0+no-version-set',
         'version' => '1.0.0.0',
         'reference' => NULL,
@@ -10,7 +10,7 @@
         'dev' => true,
     ),
     'versions' => array(
-        'nam/async-fiber' => array(
+        'vennv/async-fiber' => array(
             'pretty_version' => '1.0.0+no-version-set',
             'version' => '1.0.0.0',
             'reference' => NULL,

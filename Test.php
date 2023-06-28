@@ -25,29 +25,31 @@ function fetchData($url) : mixed {
     return $response;
 }
 
-function test() : void {
-
-    Async::create(function() {
+function test() : Async { 
+    return Async::create(function() {
 
         $url = [
             "https://www.google.com",
             "https://www.youtube.com"
         ];
+
+        $responses = [];
         
         foreach ($url as $value) {
-            //throw new \Exception("Error");
-            $response = Async::await(fn() => fetchData($value));
-            echo $response . PHP_EOL;
+            $responses[] = Async::await(fn() => fetchData($value));
         }
-        
-    })->fThen([
-        "success" => function($value) {
-            echo $value . PHP_EOL;
-        },
-        "error" => function($error) {
-            echo $error . PHP_EOL;
-        }
-    ]);
+
+        return $responses;
+    });
 }
 
-test();
+test()->fThen([
+    "success" => function($value) {
+        array_map(function ($v) {
+            echo $v . PHP_EOL;
+        }, $value);
+    },
+    "error" => function($error) {
+        echo $error . PHP_EOL;
+    }
+]);

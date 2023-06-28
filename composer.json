@@ -1,5 +1,5 @@
 {
-    "name": "nam/async-fiber",
+    "name": "vennv/async-fiber",
     "autoload": {
         "psr-4": {
             "vennv\\": "src/vennv/"
