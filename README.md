@@ -87,3 +87,36 @@ test()->fThen([
     }
 ]);
 ```
+
+Example 3:
+```
+function test() : Async { 
+    return Async::create(function() {
+
+        $url = [
+            "https://www.google.com",
+            "https://www.youtube.com"
+        ];
+
+        $responses = [];
+        
+        foreach ($url as $value) {
+            $responses[] = Async::await(fn() => fetchData($value));
+        }
+
+        return $responses;
+
+    });
+}
+
+test()->fThen([
+    "success" => function($value) {
+        array_map(function ($v) {
+            echo $v . PHP_EOL;
+        }, $value);
+    },
+    "error" => function($error) {
+        echo $error . PHP_EOL;
+    }
+]);
+```
