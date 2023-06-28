@@ -55,9 +55,10 @@ function test() : void {
     ]);
 }
 
-test();```
-
-- Example 2: ```php
+test();
+```
+- Example 2:
+```php
 function test() : Async { 
     return Async::create(function() {
 
